@@ -1,6 +1,7 @@
 package console
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -17,6 +18,14 @@ func TestSetStdinTTY(t *testing.T) {
 	testSetTTY(Fake(), "Stdin", t)
 }
 
+func TestWrite(t *testing.T) {
+	f := Fake()
+	fmt.Fprintf(f, "test")
+	if got := f.Stdout().String(); got != "test" {
+		t.Fatalf(`Write() wrote %q, expected "test"`, got)
+	}
+}
+
 var (
 	emptyValues = []reflect.Value{}
 	falseValue  = reflect.ValueOf(false)
@@ -28,6 +37,11 @@ var (
 func testSetTTY(f *FakeConsole, s string, t *testing.T) {
 	setter := reflect.ValueOf(f).MethodByName("Set" + s + "TTY")
 	getter := reflect.ValueOf(f).MethodByName("Is" + s + "TTY")
+
+	// Default should evaluate handle, fail, and return false.
+	if getter.Call(emptyValues)[0].Bool() {
+		t.Fatalf("Is%sTTY() = true, expected fallback to false", s)
+	}
 
 	setter.Call(trueValues)
 	if !getter.Call(emptyValues)[0].Bool() {
