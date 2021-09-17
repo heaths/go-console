@@ -4,12 +4,13 @@ import (
 	"io"
 	"os"
 
+	"github.com/heaths/go-console/internal/writer"
 	"github.com/mattn/go-isatty"
 )
 
 type Console struct {
-	stdout io.Writer
-	stderr io.Writer
+	stdout *writer.ColorWriter
+	stderr *writer.ColorWriter
 	stdin  io.Reader
 
 	stdoutOverride *bool
@@ -19,8 +20,8 @@ type Console struct {
 
 func System() *Console {
 	return &Console{
-		stdout: os.Stdout,
-		stderr: os.Stderr,
+		stdout: writer.NewWriter(os.Stdout),
+		stderr: writer.NewWriter(os.Stderr),
 		stdin:  os.Stdin,
 	}
 }
@@ -34,7 +35,7 @@ func (c *Console) IsStdoutTTY() bool {
 		return *c.stdoutOverride
 	}
 
-	if w, ok := c.stdout.(*os.File); ok {
+	if w, ok := c.stdout.Writer().(*os.File); ok {
 		return isatty.IsTerminal(w.Fd())
 	}
 
@@ -50,7 +51,7 @@ func (c *Console) IsStderrTTY() bool {
 		return *c.stderrOverride
 	}
 
-	if w, ok := c.stderr.(*os.File); ok {
+	if w, ok := c.stderr.Writer().(*os.File); ok {
 		return isatty.IsTerminal(w.Fd())
 	}
 

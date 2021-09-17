@@ -4,17 +4,19 @@ import (
 	"os"
 	"reflect"
 	"testing"
+
+	"github.com/heaths/go-console/internal/writer"
 )
 
-func TestIsStdoutTTY(t *testing.T) {
+func TestConsole_IsStdoutTTY(t *testing.T) {
 	testIsTTY("Stdout", t)
 }
 
-func TestIsStderrTTY(t *testing.T) {
+func TestConsole_IsStderrTTY(t *testing.T) {
 	testIsTTY("Stderr", t)
 }
 
-func TestIsStdinTTY(t *testing.T) {
+func TestConsole_IsStdinTTY(t *testing.T) {
 	testIsTTY("Stdin", t)
 }
 
@@ -29,8 +31,8 @@ func testIsTTY(s string, t *testing.T) {
 	defer f.Close()
 
 	con := &Console{
-		stdout: f,
-		stderr: f,
+		stdout: writer.NewWriter(f),
+		stderr: writer.NewWriter(f),
 		stdin:  f,
 	}
 
