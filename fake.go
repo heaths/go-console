@@ -2,22 +2,24 @@ package console
 
 import (
 	"bytes"
+
+	"github.com/heaths/go-console/internal/writer"
 )
 
 type FakeConsole struct {
-	Console
+	*Console
 }
 
 type FakeOption func(*FakeConsole)
 
 func Fake(opts ...FakeOption) *FakeConsole {
-	f := &FakeConsole{
-		Console{
-			stdout: &bytes.Buffer{},
-			stderr: &bytes.Buffer{},
-			stdin:  &bytes.Buffer{},
-		},
-	}
+	c := newConsole(
+		&bytes.Buffer{},
+		&bytes.Buffer{},
+		&bytes.Buffer{},
+	)
+
+	f := &FakeConsole{c}
 
 	for _, opt := range opts {
 		opt(f)
@@ -27,11 +29,11 @@ func Fake(opts ...FakeOption) *FakeConsole {
 }
 
 func (f *FakeConsole) Stdout() *bytes.Buffer {
-	return f.stdout.(*bytes.Buffer)
+	return f.stdout.Writer().(*bytes.Buffer)
 }
 
 func (f *FakeConsole) Stderr() *bytes.Buffer {
-	return f.stderr.(*bytes.Buffer)
+	return f.stderr.Writer().(*bytes.Buffer)
 }
 
 func (f *FakeConsole) Stdin() *bytes.Buffer {
@@ -44,7 +46,7 @@ func (f *FakeConsole) Write(p []byte) (n int, err error) {
 
 func WithStdout(stdout *bytes.Buffer) FakeOption {
 	return func(f *FakeConsole) {
-		f.stdout = stdout
+		f.stdout = writer.NewWriter(stdout)
 	}
 }
 
@@ -56,7 +58,7 @@ func WithStdoutTTY(tty bool) FakeOption {
 
 func WithStderr(stderr *bytes.Buffer) FakeOption {
 	return func(f *FakeConsole) {
-		f.stderr = stderr
+		f.stderr = writer.NewWriter(stderr)
 	}
 }
 

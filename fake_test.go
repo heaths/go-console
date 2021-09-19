@@ -6,19 +6,19 @@ import (
 	"testing"
 )
 
-func TestSetStdoutTTY(t *testing.T) {
+func TestWithStdoutTTY(t *testing.T) {
 	testSetTTY(Fake(), "Stdout", t)
 }
 
-func TestSetStderrTTY(t *testing.T) {
+func TestWithStderrTTY(t *testing.T) {
 	testSetTTY(Fake(), "Stderr", t)
 }
 
-func TestSetStdinTTY(t *testing.T) {
+func TestWithStdinTTY(t *testing.T) {
 	testSetTTY(Fake(), "Stdin", t)
 }
 
-func TestWrite(t *testing.T) {
+func TestFakeConsole_Write(t *testing.T) {
 	f := Fake()
 	fmt.Fprintf(f, "test")
 	if got := f.Stdout().String(); got != "test" {

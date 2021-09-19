@@ -4,12 +4,13 @@ import (
 	"io"
 	"os"
 
+	"github.com/heaths/go-console/internal/writer"
 	"github.com/mattn/go-isatty"
 )
 
 type Console struct {
-	stdout io.Writer
-	stderr io.Writer
+	stdout *writer.ColorWriter
+	stderr *writer.ColorWriter
 	stdin  io.Reader
 
 	stdoutOverride *bool
@@ -18,11 +19,11 @@ type Console struct {
 }
 
 func System() *Console {
-	return &Console{
-		stdout: os.Stdout,
-		stderr: os.Stderr,
-		stdin:  os.Stdin,
-	}
+	return newConsole(
+		os.Stdout,
+		os.Stderr,
+		os.Stdin,
+	)
 }
 
 func (c *Console) Stdout() io.Writer {
@@ -34,7 +35,7 @@ func (c *Console) IsStdoutTTY() bool {
 		return *c.stdoutOverride
 	}
 
-	if w, ok := c.stdout.(*os.File); ok {
+	if w, ok := c.stdout.Writer().(*os.File); ok {
 		return isatty.IsTerminal(w.Fd())
 	}
 
@@ -50,7 +51,7 @@ func (c *Console) IsStderrTTY() bool {
 		return *c.stderrOverride
 	}
 
-	if w, ok := c.stderr.(*os.File); ok {
+	if w, ok := c.stderr.Writer().(*os.File); ok {
 		return isatty.IsTerminal(w.Fd())
 	}
 
@@ -75,4 +76,19 @@ func (c *Console) IsStdinTTY() bool {
 
 func (c *Console) Write(p []byte) (n int, err error) {
 	return c.stdout.Write(p)
+}
+
+func newConsole(stdout, stderr io.Writer, stdin io.Reader) *Console {
+	// Set up writer to remove CSI sequences.
+	// TODO: Consider a way to avoid writing CSI sequences if target Writer is not a TTY.
+	c := &Console{
+		stdout: writer.NewWriter(stdout),
+		stderr: writer.NewWriter(stderr),
+		stdin:  stdin,
+	}
+
+	c.stdout.SetTTY(c.IsStdoutTTY)
+	c.stderr.SetTTY(c.IsStderrTTY)
+
+	return c
 }
