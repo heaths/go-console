@@ -7,19 +7,19 @@ import (
 )
 
 type FakeConsole struct {
-	Console
+	*Console
 }
 
 type FakeOption func(*FakeConsole)
 
 func Fake(opts ...FakeOption) *FakeConsole {
-	f := &FakeConsole{
-		Console{
-			stdout: writer.NewWriter(&bytes.Buffer{}),
-			stderr: writer.NewWriter(&bytes.Buffer{}),
-			stdin:  &bytes.Buffer{},
-		},
-	}
+	c := newConsole(
+		&bytes.Buffer{},
+		&bytes.Buffer{},
+		&bytes.Buffer{},
+	)
+
+	f := &FakeConsole{c}
 
 	for _, opt := range opts {
 		opt(f)
