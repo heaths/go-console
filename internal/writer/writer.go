@@ -38,10 +38,11 @@ func (w *ColorWriter) Write(p []byte) (n int, err error) {
 	)
 
 	var (
-		bytesWritten = 0
-		rangeStart   = 0
-		seqStart     = -1
-		isCSI        = false
+		bytesWritten int
+
+		rangeStart = 0
+		seqStart   = -1
+		isCSI      = false
 	)
 
 	for i, b := range p {
