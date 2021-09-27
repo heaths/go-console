@@ -5,6 +5,24 @@ import (
 	"testing"
 )
 
+// cSpell:ignore mred mgreen
+var buffer = []byte("\x1b[31mred\x1b[0;32mgreen\x1b[0m\n")
+
+func BenchmarkColorWriter_Write(b *testing.B) {
+	w := NewWriter(&bytes.Buffer{})
+	for i := 0; i < b.N; i++ {
+		w.Write(buffer)
+	}
+}
+
+func BenchmarkColorWriter_WriteColor(b *testing.B) {
+	w := NewWriter(&bytes.Buffer{})
+	w.SetTTY(func() bool { return true })
+	for i := 0; i < b.N; i++ {
+		w.Write(buffer)
+	}
+}
+
 func TestColorWriter_Write(t *testing.T) {
 	tests := []struct {
 		name   string
