@@ -82,8 +82,8 @@ func newConsole(stdout, stderr io.Writer, stdin io.Reader) *Console {
 	// Set up writer to remove CSI sequences.
 	// TODO: Consider a way to avoid writing CSI sequences if target Writer is not a TTY.
 	c := &Console{
-		stdout: writer.NewWriter(stdout),
-		stderr: writer.NewWriter(stderr),
+		stdout: writer.New(stdout),
+		stderr: writer.New(stderr),
 		stdin:  stdin,
 	}
 

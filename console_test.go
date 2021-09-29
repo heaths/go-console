@@ -31,8 +31,8 @@ func testIsTTY(s string, t *testing.T) {
 	defer f.Close()
 
 	con := &Console{
-		stdout: writer.NewWriter(f),
-		stderr: writer.NewWriter(f),
+		stdout: writer.New(f),
+		stderr: writer.New(f),
 		stdin:  f,
 	}
 

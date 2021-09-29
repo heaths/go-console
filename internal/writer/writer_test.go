@@ -10,7 +10,7 @@ var buffer = []byte("\x1b[31mred\x1b[0;32mgreen\x1b[0m\n")
 
 //nolint:errcheck
 func BenchmarkColorWriter_Write(b *testing.B) {
-	w := NewWriter(&bytes.Buffer{})
+	w := New(&bytes.Buffer{})
 	for i := 0; i < b.N; i++ {
 		w.Write(buffer)
 	}
@@ -18,7 +18,7 @@ func BenchmarkColorWriter_Write(b *testing.B) {
 
 //nolint:errcheck
 func BenchmarkColorWriter_WriteColor(b *testing.B) {
-	w := NewWriter(&bytes.Buffer{})
+	w := New(&bytes.Buffer{})
 	w.SetTTY(func() bool { return true })
 	for i := 0; i < b.N; i++ {
 		w.Write(buffer)
@@ -127,7 +127,7 @@ func TestColorWriter_Write(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			b := &bytes.Buffer{}
-			w := NewWriter(b)
+			w := New(b)
 			w.SetTTY(func() bool { return tt.isTTY })
 
 			if got, err := w.Write([]byte(tt.buffer)); got != len(tt.want) || err != nil {
@@ -149,7 +149,7 @@ func TestColorWriter_Write(t *testing.T) {
 
 func TestColorWriter_Writer(t *testing.T) {
 	b := &bytes.Buffer{}
-	w := NewWriter(b)
+	w := New(b)
 
 	if got := w.Writer(); got != b {
 		t.Fatalf("ColorWriter.Writer() = %p, expected %p", got, b)
