@@ -46,7 +46,7 @@ func (f *FakeConsole) Write(p []byte) (n int, err error) {
 
 func WithStdout(stdout *bytes.Buffer) FakeOption {
 	return func(f *FakeConsole) {
-		f.stdout = writer.NewWriter(stdout)
+		f.stdout = writer.New(stdout)
 	}
 }
 
@@ -58,7 +58,7 @@ func WithStdoutTTY(tty bool) FakeOption {
 
 func WithStderr(stderr *bytes.Buffer) FakeOption {
 	return func(f *FakeConsole) {
-		f.stderr = writer.NewWriter(stderr)
+		f.stderr = writer.New(stderr)
 	}
 }
 

@@ -9,7 +9,7 @@ type ColorWriter struct {
 	isTTY  func() bool
 }
 
-func NewWriter(w io.Writer) *ColorWriter {
+func New(w io.Writer) *ColorWriter {
 	return &ColorWriter{
 		writer: w,
 		isTTY:  isTTY,
