@@ -51,16 +51,23 @@ var (
 	}
 )
 
+// ColorScheme formats text with different colors and styles.
 type ColorScheme struct {
 	colors map[string]func(string) string
+	isTTY  func() bool
 }
 
-func New() *ColorScheme {
+type ColorSchemeOption func(*ColorScheme)
+
+// New creates a new ColorScheme with options like WithTTY.
+func New(opts ...ColorSchemeOption) *ColorScheme {
 	return &ColorScheme{
 		colors: make(map[string]func(string) string),
 	}
 }
 
+// ColorFunc returns a function to format text with a given style. The resulting
+// function is cached to improve performance with subsequent use.
 func (cs *ColorScheme) ColorFunc(style string) func(string) string {
 	if fn, ok := cs.colors[style]; ok {
 		return fn
@@ -81,6 +88,14 @@ func (cs *ColorScheme) ColorFunc(style string) func(string) string {
 
 	cs.colors[style] = fn
 	return fn
+}
+
+// WithTTY sets a function for ColorScheme to determine if the target Writer
+// represents a TTY and avoid writing terminal sequences.
+func WithTTY(isTTY func() bool) ColorSchemeOption {
+	return func(cs *ColorScheme) {
+		cs.isTTY = isTTY
+	}
 }
 
 // colorCode is compatible with github.com/mgutz/ansi with truecolor support.
