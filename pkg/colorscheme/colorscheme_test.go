@@ -34,9 +34,9 @@ func TestNew(t *testing.T) {
 	}
 }
 
-// cSpell:ignore mtest
+// cSpell:ignore magain mtest
 func TestColorScheme_ColorFunc(t *testing.T) {
-	cs := New()
+	cs := New(WithTTY(alwaysTTY))
 	fn := cs.ColorFunc("red+h")
 
 	want := "\x1b[0;91mtest\x1b[0m"
@@ -60,6 +60,21 @@ func TestColorScheme_ColorFunc_empty(t *testing.T) {
 
 	if len(cs.colors) != 0 {
 		t.Fatalf("len(ColorScheme.colors) = %d, expected 0", len(cs.colors))
+	}
+}
+
+// TestColorScheme_ColorFunc_twice tests for heaths/go-console#9.
+func TestColorScheme_ColorFunc_twice(t *testing.T) {
+	cs := New(WithTTY(alwaysTTY))
+	fn := cs.ColorFunc("red+h")
+
+	want := "\x1b[0;91mtest\x1b[0m\x1b[0;91magain\x1b[0m"
+	if got := fn("test") + fn("again"); got != want {
+		t.Fatalf("ColorFunc()() = %q, expected %q", got, want)
+	}
+
+	if len(cs.colors) != 1 {
+		t.Fatalf("len(ColorScheme.colors) = %d, expected 1", len(cs.colors))
 	}
 }
 
@@ -310,4 +325,8 @@ func TestRgbCode(t *testing.T) {
 	if got := buf.String(); got != want {
 		t.Fatalf("rgbCode() = %q, expected %q", got, want)
 	}
+}
+
+func alwaysTTY() bool {
+	return true
 }
