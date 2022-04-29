@@ -9,6 +9,20 @@ import (
 )
 
 func ExampleColorScheme() {
+	fake := console.Fake()
+
+	cs := colorscheme.New(
+		colorscheme.WithTTY(fake.IsStdoutTTY),
+	)
+
+	greeting := cs.ColorFunc("green")
+	fmt.Fprintf(fake.Stdout(), "%s", greeting("Hello, world!"))
+	fmt.Println(fake.Stdout().String())
+
+	// Output: Hello, world!
+}
+
+func ExampleColorScheme_color() {
 	fake := console.Fake(
 		console.WithStdoutTTY(true),
 	)
@@ -18,7 +32,7 @@ func ExampleColorScheme() {
 	)
 
 	greeting := cs.ColorFunc("green")
-	fmt.Fprintf(fake, "%s", greeting("Hello, world!"))
+	fmt.Fprintf(fake.Stdout(), "%s", greeting("Hello, world!"))
 
 	// Doubly escape fake stdout and write to real stdout to assert output.
 	s := strings.ReplaceAll(fake.Stdout().String(), "\x1b", `\x1b`)

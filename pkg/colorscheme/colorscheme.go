@@ -61,26 +61,32 @@ type ColorSchemeOption func(*ColorScheme)
 
 // New creates a new ColorScheme with options like WithTTY.
 func New(opts ...ColorSchemeOption) *ColorScheme {
-	return &ColorScheme{
+	cs := &ColorScheme{
 		colors: make(map[string]func(string) string),
 	}
+
+	for _, opt := range opts {
+		opt(cs)
+	}
+
+	return cs
 }
 
 // ColorFunc returns a function to format text with a given style. The resulting
 // function is cached to improve performance with subsequent use.
 func (cs *ColorScheme) ColorFunc(style string) func(string) string {
-	if fn, ok := cs.colors[style]; ok {
-		return fn
-	}
-
-	if style == "" {
+	if style == "" || cs.isTTY == nil || !cs.isTTY() {
 		return func(s string) string {
 			return s
 		}
 	}
+	if fn, ok := cs.colors[style]; ok {
+		return fn
+	}
 
 	buf := colorCode(style)
 	fn := func(s string) string {
+		buf := bytes.NewBuffer(buf.Bytes())
 		buf.WriteString(s)
 		buf.WriteString(reset)
 		return buf.String()
