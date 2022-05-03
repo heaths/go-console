@@ -10,8 +10,9 @@ import (
 )
 
 func Benchmark_function(b *testing.B) {
+	cs := New(WithTTY(alwaysTTY))
 	for i := 0; i < b.N; i++ {
-		_ = foreground(red, "red")
+		_ = cs.foreground(red, "red")
 	}
 }
 
@@ -80,26 +81,27 @@ func TestColorScheme_ColorFunc_twice(t *testing.T) {
 
 // cSpell:ignore mtest
 func TestColor(t *testing.T) {
+	cs := New(WithTTY(alwaysTTY))
 	tests := []struct {
 		fn   func(string) string
 		want string
 	}{
-		{want: "\x1b[0;30mtest\x1b[0m", fn: Black},
-		{want: "\x1b[0;31mtest\x1b[0m", fn: Red},
-		{want: "\x1b[0;32mtest\x1b[0m", fn: Green},
-		{want: "\x1b[0;33mtest\x1b[0m", fn: Yellow},
-		{want: "\x1b[0;34mtest\x1b[0m", fn: Blue},
-		{want: "\x1b[0;35mtest\x1b[0m", fn: Magenta},
-		{want: "\x1b[0;36mtest\x1b[0m", fn: Cyan},
-		{want: "\x1b[0;37mtest\x1b[0m", fn: White},
-		{want: "\x1b[0;90mtest\x1b[0m", fn: LightBlack},
-		{want: "\x1b[0;91mtest\x1b[0m", fn: LightRed},
-		{want: "\x1b[0;92mtest\x1b[0m", fn: LightGreen},
-		{want: "\x1b[0;93mtest\x1b[0m", fn: LightYellow},
-		{want: "\x1b[0;94mtest\x1b[0m", fn: LightBlue},
-		{want: "\x1b[0;95mtest\x1b[0m", fn: LightMagenta},
-		{want: "\x1b[0;96mtest\x1b[0m", fn: LightCyan},
-		{want: "\x1b[0;97mtest\x1b[0m", fn: LightWhite},
+		{want: "\x1b[0;30mtest\x1b[0m", fn: cs.Black},
+		{want: "\x1b[0;31mtest\x1b[0m", fn: cs.Red},
+		{want: "\x1b[0;32mtest\x1b[0m", fn: cs.Green},
+		{want: "\x1b[0;33mtest\x1b[0m", fn: cs.Yellow},
+		{want: "\x1b[0;34mtest\x1b[0m", fn: cs.Blue},
+		{want: "\x1b[0;35mtest\x1b[0m", fn: cs.Magenta},
+		{want: "\x1b[0;36mtest\x1b[0m", fn: cs.Cyan},
+		{want: "\x1b[0;37mtest\x1b[0m", fn: cs.White},
+		{want: "\x1b[0;90mtest\x1b[0m", fn: cs.LightBlack},
+		{want: "\x1b[0;91mtest\x1b[0m", fn: cs.LightRed},
+		{want: "\x1b[0;92mtest\x1b[0m", fn: cs.LightGreen},
+		{want: "\x1b[0;93mtest\x1b[0m", fn: cs.LightYellow},
+		{want: "\x1b[0;94mtest\x1b[0m", fn: cs.LightBlue},
+		{want: "\x1b[0;95mtest\x1b[0m", fn: cs.LightMagenta},
+		{want: "\x1b[0;96mtest\x1b[0m", fn: cs.LightCyan},
+		{want: "\x1b[0;97mtest\x1b[0m", fn: cs.LightWhite},
 	}
 
 	for _, tt := range tests {
@@ -324,6 +326,17 @@ func TestRgbCode(t *testing.T) {
 	want := "38;2;68;136;204"
 	if got := buf.String(); got != want {
 		t.Fatalf("rgbCode() = %q, expected %q", got, want)
+	}
+}
+
+func TestClone(t *testing.T) {
+	cs1 := New(WithTTY(alwaysTTY))
+	cs1.ColorFunc("green")
+
+	cs2 := cs1.Clone()
+
+	if !reflect.DeepEqual(cs1.colors, cs2.colors) {
+		t.Fatalf("clone does not contain the same color map")
 	}
 }
 

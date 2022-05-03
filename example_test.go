@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/heaths/go-console"
+	"github.com/heaths/go-console/pkg/colorscheme"
 )
 
 func Example() {
@@ -52,4 +53,31 @@ func ExampleFake() {
 	fmt.Println(fake.Stdout().String())
 
 	// Output: Hello, fake!
+}
+
+func ExampleConsole_ColorScheme() {
+	// Set up a console with stdout redirected, but not stderr.
+	fake := console.Fake(
+		console.WithStdoutTTY(false),
+		console.WithStderrTTY(true),
+	)
+
+	cs := fake.ColorScheme()
+
+	// Console.ColorScheme affects the Console i.e., stdout, so this isn't colored.
+	fmt.Fprintf(fake.Stderr(), "%s\n", cs.Red("Error: not red!"))
+
+	// Clone the ColorScheme to check if stderr is redirected or not.
+	cs = fake.ColorScheme().Clone(
+		colorscheme.WithTTY(fake.IsStderrTTY),
+	)
+	fmt.Fprintf(fake.Stderr(), "%s\n", cs.Red("Error: red alert!"))
+
+	// Doubly escape fake stdout and write to real stdout to assert output.
+	s := strings.ReplaceAll(fake.Stderr().String(), "\x1b", `\x1b`)
+	fmt.Println(s)
+
+	// Output:
+	// Error: not red!
+	// \x1b[0;31mError: red alert!\x1b[0m
 }

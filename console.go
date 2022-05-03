@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/heaths/go-console/pkg/colorscheme"
 	"github.com/mattn/go-isatty"
 )
 
@@ -15,14 +16,20 @@ type Console struct {
 	stdoutOverride *bool
 	stderrOverride *bool
 	stdinOverride  *bool
+
+	cs *colorscheme.ColorScheme
 }
 
 func System() *Console {
-	return &Console{
+	c := &Console{
 		stdout: os.Stdout,
 		stderr: os.Stderr,
 		stdin:  os.Stdin,
 	}
+
+	c.cs = colorscheme.New(colorscheme.WithTTY(c.IsStdoutTTY))
+
+	return c
 }
 
 func (c *Console) Stdout() io.Writer {
@@ -73,6 +80,12 @@ func (c *Console) IsStdinTTY() bool {
 	return false
 }
 
+// Write implements Writer on the console and calls Write on Stdout.
 func (c *Console) Write(p []byte) (n int, err error) {
 	return c.stdout.Write(p)
+}
+
+// ColorScheme gets the color scheme for the console i.e., Stdout.
+func (c *Console) ColorScheme() *colorscheme.ColorScheme {
+	return c.cs
 }
