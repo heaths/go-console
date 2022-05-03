@@ -3,7 +3,9 @@ package console
 import (
 	"io"
 	"os"
+	"sync"
 
+	"github.com/briandowns/spinner"
 	"github.com/heaths/go-console/pkg/colorscheme"
 	"github.com/mattn/go-isatty"
 )
@@ -18,6 +20,10 @@ type Console struct {
 	stdinOverride  *bool
 
 	cs *colorscheme.ColorScheme
+
+	progress        *spinner.Spinner
+	progressEnabled bool
+	progressLock    sync.Mutex
 }
 
 func System() *Console {
@@ -25,6 +31,8 @@ func System() *Console {
 		stdout: os.Stdout,
 		stderr: os.Stderr,
 		stdin:  os.Stdin,
+
+		progressEnabled: true,
 	}
 
 	c.cs = colorscheme.New(colorscheme.WithTTY(c.IsStdoutTTY))
