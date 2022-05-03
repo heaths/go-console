@@ -26,6 +26,25 @@ func TestFakeConsole_Write(t *testing.T) {
 	}
 }
 
+func TestFakeConsole_StartProgress(t *testing.T) {
+	f := Fake(
+		WithStderrTTY(true),
+	)
+
+	f.StartProgress("progress")
+	fmt.Fprintf(f, "test")
+	f.StopProgress()
+
+	if got := f.Stdout().String(); got != "test" {
+		t.Fatalf(`Write() wrote %q, expected "test"`, got)
+	}
+
+	// github.com/briandowns/spinner@v1.18.1 always checks os.Stdout so this will never fail.
+	if f.Stderr().Len() > 0 {
+		t.Fatalf(`StartProgress() wrote progress, expected none`)
+	}
+}
+
 var (
 	emptyValues = []reflect.Value{}
 	falseValue  = reflect.ValueOf(false)
