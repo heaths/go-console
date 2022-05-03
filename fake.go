@@ -2,6 +2,8 @@ package console
 
 import (
 	"bytes"
+
+	"github.com/heaths/go-console/pkg/colorscheme"
 )
 
 type FakeConsole struct {
@@ -21,6 +23,10 @@ func Fake(opts ...FakeOption) *FakeConsole {
 
 	for _, opt := range opts {
 		opt(f)
+	}
+
+	if c.cs == nil {
+		c.cs = colorscheme.New(colorscheme.WithTTY(c.IsStdoutTTY))
 	}
 
 	return f
@@ -75,5 +81,11 @@ func WithStdin(stdin *bytes.Buffer) FakeOption {
 func WithStdinTTY(tty bool) FakeOption {
 	return func(f *FakeConsole) {
 		f.stdinOverride = &tty
+	}
+}
+
+func WithColorScheme(cs *colorscheme.ColorScheme) FakeOption {
+	return func(f *FakeConsole) {
+		f.cs = cs
 	}
 }

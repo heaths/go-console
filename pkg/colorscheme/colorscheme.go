@@ -72,6 +72,23 @@ func New(opts ...ColorSchemeOption) *ColorScheme {
 	return cs
 }
 
+// Clone returns a ColorScheme using the same color map, but can support
+// different ColorSchemeOptions. You could use this, for example, to clone a
+// Console's ColorScheme for Stderr, since the Console.ColorScheme() checks if
+// Stdout is a TTY.
+func (cs *ColorScheme) Clone(opts ...ColorSchemeOption) *ColorScheme {
+	clone := &ColorScheme{
+		colors: cs.colors,
+		isTTY:  cs.isTTY,
+	}
+
+	for _, opt := range opts {
+		opt(clone)
+	}
+
+	return clone
+}
+
 // ColorFunc returns a function to format text with a given style. The resulting
 // function is cached to improve performance with subsequent use.
 func (cs *ColorScheme) ColorFunc(style string) func(string) string {
@@ -201,69 +218,73 @@ func rgbCode(buf *bytes.Buffer, rgb string, base int) {
 	fmt.Fprintf(buf, "%d;%d;%d", r, g, b)
 }
 
-func Black(s string) string {
-	return foreground(normalFG+black, s)
+func (cs *ColorScheme) Black(s string) string {
+	return cs.foreground(normalFG+black, s)
 }
 
-func Red(s string) string {
-	return foreground(normalFG+red, s)
+func (cs *ColorScheme) Red(s string) string {
+	return cs.foreground(normalFG+red, s)
 }
 
-func Green(s string) string {
-	return foreground(normalFG+green, s)
+func (cs *ColorScheme) Green(s string) string {
+	return cs.foreground(normalFG+green, s)
 }
 
-func Yellow(s string) string {
-	return foreground(normalFG+yellow, s)
+func (cs *ColorScheme) Yellow(s string) string {
+	return cs.foreground(normalFG+yellow, s)
 }
 
-func Blue(s string) string {
-	return foreground(normalFG+blue, s)
+func (cs *ColorScheme) Blue(s string) string {
+	return cs.foreground(normalFG+blue, s)
 }
 
-func Magenta(s string) string {
-	return foreground(normalFG+magenta, s)
+func (cs *ColorScheme) Magenta(s string) string {
+	return cs.foreground(normalFG+magenta, s)
 }
 
-func Cyan(s string) string {
-	return foreground(normalFG+cyan, s)
+func (cs *ColorScheme) Cyan(s string) string {
+	return cs.foreground(normalFG+cyan, s)
 }
 
-func White(s string) string {
-	return foreground(normalFG+white, s)
+func (cs *ColorScheme) White(s string) string {
+	return cs.foreground(normalFG+white, s)
 }
-func LightBlack(s string) string {
-	return foreground(normalFG+lightOffset+black, s)
-}
-
-func LightRed(s string) string {
-	return foreground(normalFG+lightOffset+red, s)
+func (cs *ColorScheme) LightBlack(s string) string {
+	return cs.foreground(normalFG+lightOffset+black, s)
 }
 
-func LightGreen(s string) string {
-	return foreground(normalFG+lightOffset+green, s)
+func (cs *ColorScheme) LightRed(s string) string {
+	return cs.foreground(normalFG+lightOffset+red, s)
 }
 
-func LightYellow(s string) string {
-	return foreground(normalFG+lightOffset+yellow, s)
+func (cs *ColorScheme) LightGreen(s string) string {
+	return cs.foreground(normalFG+lightOffset+green, s)
 }
 
-func LightBlue(s string) string {
-	return foreground(normalFG+lightOffset+blue, s)
+func (cs *ColorScheme) LightYellow(s string) string {
+	return cs.foreground(normalFG+lightOffset+yellow, s)
 }
 
-func LightMagenta(s string) string {
-	return foreground(normalFG+lightOffset+magenta, s)
+func (cs *ColorScheme) LightBlue(s string) string {
+	return cs.foreground(normalFG+lightOffset+blue, s)
 }
 
-func LightCyan(s string) string {
-	return foreground(normalFG+lightOffset+cyan, s)
+func (cs *ColorScheme) LightMagenta(s string) string {
+	return cs.foreground(normalFG+lightOffset+magenta, s)
 }
 
-func LightWhite(s string) string {
-	return foreground(normalFG+lightOffset+white, s)
+func (cs *ColorScheme) LightCyan(s string) string {
+	return cs.foreground(normalFG+lightOffset+cyan, s)
 }
 
-func foreground(c int, s string) string {
-	return csi + normal + strconv.Itoa(c) + "m" + s + reset
+func (cs *ColorScheme) LightWhite(s string) string {
+	return cs.foreground(normalFG+lightOffset+white, s)
+}
+
+func (cs *ColorScheme) foreground(c int, s string) string {
+	if cs.isTTY() {
+		return csi + normal + strconv.Itoa(c) + "m" + s + reset
+	}
+
+	return s
 }
