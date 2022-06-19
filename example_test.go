@@ -32,7 +32,8 @@ func Example() {
 	}
 
 	// Doubly escape fake stdout and write to real stdout to assert output.
-	s := strings.ReplaceAll(fake.Stdout().String(), "\x1b", `\x1b`)
+	stdout, _, _ := fake.Buffers()
+	s := strings.ReplaceAll(stdout.String(), "\x1b", `\x1b`)
 	fmt.Println(s)
 
 	// Output: \x1b[0;31mred\x1b[0m\x1b[0;32mgreen\x1b[0m
@@ -50,7 +51,9 @@ func ExampleFake() {
 	// Create fake console from buffers.
 	fake := console.Fake()
 	fmt.Fprintf(fake.Stdout(), "Hello, fake!")
-	fmt.Println(fake.Stdout().String())
+
+	stdout, _, _ := fake.Buffers()
+	fmt.Println(stdout.String())
 
 	// Output: Hello, fake!
 }
@@ -74,7 +77,8 @@ func ExampleConsole_ColorScheme() {
 	fmt.Fprintf(fake.Stderr(), "%s\n", cs.Red("Error: red alert!"))
 
 	// Doubly escape fake stdout and write to real stdout to assert output.
-	s := strings.ReplaceAll(fake.Stderr().String(), "\x1b", `\x1b`)
+	_, stderr, _ := fake.Buffers()
+	s := strings.ReplaceAll(stderr.String(), "\x1b", `\x1b`)
 	fmt.Println(s)
 
 	// Output:

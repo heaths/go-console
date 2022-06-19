@@ -10,7 +10,23 @@ import (
 	"github.com/mattn/go-isatty"
 )
 
-type Console struct {
+type Console interface {
+	Stdout() io.Writer
+	Stderr() io.Writer
+	Stdin() io.Reader
+	IsStdoutTTY() bool
+	IsStderrTTY() bool
+	IsStdinTTY() bool
+
+	io.Writer
+
+	ColorScheme() *colorscheme.ColorScheme
+
+	StartProgress(label string, opts ...ProgressOption)
+	StopProgress()
+}
+
+type con struct {
 	stdout io.Writer
 	stderr io.Writer
 	stdin  io.Reader
@@ -26,8 +42,8 @@ type Console struct {
 	progressLock    sync.Mutex
 }
 
-func System() *Console {
-	c := &Console{
+func System() Console {
+	c := &con{
 		stdout: os.Stdout,
 		stderr: os.Stderr,
 		stdin:  os.Stdin,
@@ -40,11 +56,11 @@ func System() *Console {
 	return c
 }
 
-func (c *Console) Stdout() io.Writer {
+func (c *con) Stdout() io.Writer {
 	return c.stdout
 }
 
-func (c *Console) IsStdoutTTY() bool {
+func (c *con) IsStdoutTTY() bool {
 	if c.stdoutOverride != nil {
 		return *c.stdoutOverride
 	}
@@ -56,11 +72,11 @@ func (c *Console) IsStdoutTTY() bool {
 	return false
 }
 
-func (c *Console) Stderr() io.Writer {
+func (c *con) Stderr() io.Writer {
 	return c.stderr
 }
 
-func (c *Console) IsStderrTTY() bool {
+func (c *con) IsStderrTTY() bool {
 	if c.stderrOverride != nil {
 		return *c.stderrOverride
 	}
@@ -72,11 +88,11 @@ func (c *Console) IsStderrTTY() bool {
 	return false
 }
 
-func (c *Console) Stdin() io.Reader {
+func (c *con) Stdin() io.Reader {
 	return c.stdin
 }
 
-func (c *Console) IsStdinTTY() bool {
+func (c *con) IsStdinTTY() bool {
 	if c.stdinOverride != nil {
 		return *c.stdinOverride
 	}
@@ -89,11 +105,11 @@ func (c *Console) IsStdinTTY() bool {
 }
 
 // Write implements Writer on the console and calls Write on Stdout.
-func (c *Console) Write(p []byte) (n int, err error) {
+func (c *con) Write(p []byte) (n int, err error) {
 	return c.stdout.Write(p)
 }
 
 // ColorScheme gets the color scheme for the console i.e., Stdout.
-func (c *Console) ColorScheme() *colorscheme.ColorScheme {
+func (c *con) ColorScheme() *colorscheme.ColorScheme {
 	return c.cs
 }
