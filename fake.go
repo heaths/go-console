@@ -7,13 +7,13 @@ import (
 )
 
 type FakeConsole struct {
-	*Console
+	*con
 }
 
 type FakeOption func(*FakeConsole)
 
 func Fake(opts ...FakeOption) *FakeConsole {
-	c := &Console{
+	c := &con{
 		stdout: &bytes.Buffer{},
 		stderr: &bytes.Buffer{},
 		stdin:  &bytes.Buffer{},
@@ -32,16 +32,11 @@ func Fake(opts ...FakeOption) *FakeConsole {
 	return f
 }
 
-func (f *FakeConsole) Stdout() *bytes.Buffer {
-	return f.stdout.(*bytes.Buffer)
-}
-
-func (f *FakeConsole) Stderr() *bytes.Buffer {
-	return f.stderr.(*bytes.Buffer)
-}
-
-func (f *FakeConsole) Stdin() *bytes.Buffer {
-	return f.stdin.(*bytes.Buffer)
+func (f *FakeConsole) Buffers() (stdout, stderr, stdin *bytes.Buffer) {
+	stdout = f.stdout.(*bytes.Buffer)
+	stderr = f.stderr.(*bytes.Buffer)
+	stdin = f.stdin.(*bytes.Buffer)
+	return
 }
 
 func (f *FakeConsole) Write(p []byte) (n int, err error) {

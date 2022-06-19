@@ -21,7 +21,9 @@ func TestWithStdinTTY(t *testing.T) {
 func TestFakeConsole_Write(t *testing.T) {
 	f := Fake()
 	fmt.Fprintf(f, "test")
-	if got := f.Stdout().String(); got != "test" {
+
+	stdout, _, _ := f.Buffers()
+	if got := stdout.String(); got != "test" {
 		t.Fatalf(`Write() wrote %q, expected "test"`, got)
 	}
 }
@@ -35,12 +37,13 @@ func TestFakeConsole_StartProgress(t *testing.T) {
 	fmt.Fprintf(f, "test")
 	f.StopProgress()
 
-	if got := f.Stdout().String(); got != "test" {
+	stdout, stderr, _ := f.Buffers()
+	if got := stdout.String(); got != "test" {
 		t.Fatalf(`Write() wrote %q, expected "test"`, got)
 	}
 
 	// github.com/briandowns/spinner@v1.18.1 always checks os.Stdout so this will never fail.
-	if f.Stderr().Len() > 0 {
+	if stderr.Len() > 0 {
 		t.Fatalf(`StartProgress() wrote progress, expected none`)
 	}
 }

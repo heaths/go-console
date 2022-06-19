@@ -28,13 +28,13 @@ func testIsTTY(s string, t *testing.T) {
 
 	defer f.Close()
 
-	con := &Console{
+	console := &con{
 		stdout: f,
 		stderr: f,
 		stdin:  f,
 	}
 
-	getter := reflect.ValueOf(con).MethodByName("Is" + s + "TTY")
+	getter := reflect.ValueOf(console).MethodByName("Is" + s + "TTY")
 
 	// Default should evaluate handle, fail, and return false.
 	if getter.Call(emptyValues)[0].Bool() {

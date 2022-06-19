@@ -17,7 +17,9 @@ func ExampleColorScheme() {
 
 	greeting := cs.ColorFunc("green")
 	fmt.Fprintf(fake.Stdout(), "%s", greeting("Hello, world!"))
-	fmt.Println(fake.Stdout().String())
+
+	stdout, _, _ := fake.Buffers()
+	fmt.Println(stdout.String())
 
 	// Output: Hello, world!
 }
@@ -35,7 +37,8 @@ func ExampleColorScheme_color() {
 	fmt.Fprintf(fake.Stdout(), "%s", greeting("Hello, world!"))
 
 	// Doubly escape fake stdout and write to real stdout to assert output.
-	s := strings.ReplaceAll(fake.Stdout().String(), "\x1b", `\x1b`)
+	stdout, _, _ := fake.Buffers()
+	s := strings.ReplaceAll(stdout.String(), "\x1b", `\x1b`)
 	fmt.Println(s)
 
 	// Output: \x1b[0;32mHello, world!\x1b[0m

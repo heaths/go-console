@@ -16,7 +16,7 @@ const (
 
 type ProgressOption func(*spinner.Spinner)
 
-func (c *Console) StartProgress(label string, opts ...ProgressOption) {
+func (c *con) StartProgress(label string, opts ...ProgressOption) {
 	if !c.progressEnabled || !c.IsStderrTTY() {
 		return
 	}
@@ -42,7 +42,7 @@ func (c *Console) StartProgress(label string, opts ...ProgressOption) {
 	c.progress = sp
 }
 
-func (c *Console) StopProgress() {
+func (c *con) StopProgress() {
 	c.progressLock.Lock()
 	defer c.progressLock.Unlock()
 
