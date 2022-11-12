@@ -7,6 +7,8 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+
+	"github.com/heaths/go-console/internal/ansi"
 )
 
 func Benchmark_function(b *testing.B) {
@@ -118,7 +120,7 @@ func TestColor(t *testing.T) {
 
 // For benchmark comparisons.
 func foregroundPrintf(c int, s string) string {
-	return fmt.Sprintf("%s%s%dm%s%s", csi, normal, c, s, reset)
+	return fmt.Sprintf("%s%s%dm%s%s", ansi.CSI, normal, c, s, ansi.Reset)
 }
 
 func foregroundFastPrintf(c int, s string) string {

@@ -21,9 +21,23 @@ type Console interface {
 	io.Writer
 
 	ColorScheme() *colorscheme.ColorScheme
+	Reset()
 
 	StartProgress(label string, opts ...ProgressOption)
 	StopProgress()
+
+	ClearLine()
+	ClearLines(rows int)
+	ClearScreen()
+	StartAlternativeScreenBuffer()
+	StopAlternativeScreenBuffer()
+
+	MoveCursor(rows, columns int)
+	CursorUp(rows int)
+	CursorDown(rows int)
+	CursorForward(columns int)
+	CursorBack(columns int)
+	CursorColumn(column int)
 }
 
 type con struct {

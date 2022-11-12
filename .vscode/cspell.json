@@ -3,8 +3,10 @@
     "language": "en",
     "words": [
         "isatty",
-        "mattn",
-        "nolint"
+        "mattn"
+    ],
+    "ignoreRegExpList": [
+        "nolint:\\w+"
     ],
     "overrides": [
         {
