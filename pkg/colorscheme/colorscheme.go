@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/heaths/go-console/internal/ansi"
 )
 
 const (
@@ -17,9 +19,7 @@ const (
 	cyan
 	white
 
-	csi   = "\x1b["
-	sgr   = "m"
-	reset = "\x1b[0m"
+	sgr = "m"
 
 	normal        = "0;"
 	bold          = "1;"
@@ -105,7 +105,7 @@ func (cs *ColorScheme) ColorFunc(style string) func(string) string {
 	fn := func(s string) string {
 		buf := bytes.NewBuffer(buf.Bytes())
 		buf.WriteString(s)
-		buf.WriteString(reset)
+		buf.WriteString(ansi.Reset)
 		return buf.String()
 	}
 
@@ -130,7 +130,7 @@ func colorCode(style string) *bytes.Buffer {
 		return buf
 
 	case style == "reset":
-		buf.WriteString(reset)
+		buf.WriteString(ansi.Reset)
 		return buf
 	}
 
@@ -138,7 +138,7 @@ func colorCode(style string) *bytes.Buffer {
 	stylesLength := len(styles)
 
 	// Write CSI and reset.
-	buf.WriteString(csi)
+	buf.WriteString(ansi.CSI)
 	buf.WriteString(normal)
 
 	// Write foreground.
@@ -283,7 +283,7 @@ func (cs *ColorScheme) LightWhite(s string) string {
 
 func (cs *ColorScheme) foreground(c int, s string) string {
 	if cs.isTTY() {
-		return csi + normal + strconv.Itoa(c) + "m" + s + reset
+		return ansi.CSI + normal + strconv.Itoa(c) + "m" + s + ansi.Reset
 	}
 
 	return s
