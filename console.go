@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/briandowns/spinner"
 	"github.com/heaths/go-console/pkg/colorscheme"
@@ -54,6 +55,7 @@ type con struct {
 	progress        *spinner.Spinner
 	progressEnabled bool
 	progressLock    sync.Mutex
+	progressMin     <-chan time.Time
 }
 
 func System() Console {

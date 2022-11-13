@@ -14,7 +14,7 @@ const (
 	ProgressStyleDots ProgressStyle = 11
 )
 
-type ProgressOption func(*spinner.Spinner)
+type ProgressOption func(*con, *spinner.Spinner)
 
 func (c *con) StartProgress(label string, opts ...ProgressOption) {
 	if !c.progressEnabled || !c.IsStderrTTY() {
@@ -38,6 +38,10 @@ func (c *con) StartProgress(label string, opts ...ProgressOption) {
 		sp.Suffix = " " + label
 	}
 
+	for _, opt := range opts {
+		opt(c, sp)
+	}
+
 	sp.Start()
 	c.progress = sp
 }
@@ -50,12 +54,23 @@ func (c *con) StopProgress() {
 		return
 	}
 
+	if c.progressMin != nil {
+		<-c.progressMin
+		c.progressMin = nil
+	}
+
 	c.progress.Stop()
 	c.progress = nil
 }
 
+func WithMinimum(d time.Duration) ProgressOption {
+	return func(c *con, _ *spinner.Spinner) {
+		c.progressMin = time.After(d)
+	}
+}
+
 func WithProgressStyle(style ProgressStyle) ProgressOption {
-	return func(sp *spinner.Spinner) {
+	return func(_ *con, sp *spinner.Spinner) {
 		cs := spinner.CharSets[int(style)]
 		sp.UpdateCharSet(cs)
 	}
