@@ -1,6 +1,7 @@
 package console
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"sync"
@@ -8,7 +9,7 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/heaths/go-console/pkg/colorscheme"
-	"github.com/mattn/go-isatty"
+	"golang.org/x/term"
 )
 
 type Console interface {
@@ -18,6 +19,7 @@ type Console interface {
 	IsStdoutTTY() bool
 	IsStderrTTY() bool
 	IsStdinTTY() bool
+	Size() (width, height int, err error)
 
 	io.Writer
 
@@ -49,6 +51,11 @@ type con struct {
 	stdoutOverride *bool
 	stderrOverride *bool
 	stdinOverride  *bool
+
+	sizeOverride *struct {
+		Width  int
+		Height int
+	}
 
 	cs *colorscheme.ColorScheme
 
@@ -82,7 +89,7 @@ func (c *con) IsStdoutTTY() bool {
 	}
 
 	if w, ok := c.stdout.(*os.File); ok {
-		return isatty.IsTerminal(w.Fd())
+		return term.IsTerminal(int(w.Fd()))
 	}
 
 	return false
@@ -98,7 +105,7 @@ func (c *con) IsStderrTTY() bool {
 	}
 
 	if w, ok := c.stderr.(*os.File); ok {
-		return isatty.IsTerminal(w.Fd())
+		return term.IsTerminal(int(w.Fd()))
 	}
 
 	return false
@@ -114,10 +121,22 @@ func (c *con) IsStdinTTY() bool {
 	}
 
 	if w, ok := c.stdin.(*os.File); ok {
-		return isatty.IsTerminal(w.Fd())
+		return term.IsTerminal(int(w.Fd()))
 	}
 
 	return false
+}
+
+func (c *con) Size() (width, height int, err error) {
+	if c.sizeOverride != nil {
+		return c.sizeOverride.Width, c.sizeOverride.Height, nil
+	}
+
+	if w, ok := c.stdin.(*os.File); ok {
+		return term.GetSize(int(w.Fd()))
+	}
+
+	return 0, 0, fmt.Errorf("cannot determine size")
 }
 
 // Write implements Writer on the console and calls Write on Stdout.
