@@ -79,6 +79,24 @@ func WithStdinTTY(tty bool) FakeOption {
 	}
 }
 
+func WithSize(width, height int) FakeOption {
+	if width < 0 {
+		panic("width cannot be less than 0")
+	}
+	if height < 0 {
+		panic("height cannot be less than 0")
+	}
+	return func(f *FakeConsole) {
+		f.sizeOverride = &struct {
+			Width  int
+			Height int
+		}{
+			Width:  width,
+			Height: height,
+		}
+	}
+}
+
 func WithColorScheme(cs *colorscheme.ColorScheme) FakeOption {
 	return func(f *FakeConsole) {
 		f.cs = cs

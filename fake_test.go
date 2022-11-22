@@ -18,6 +18,17 @@ func TestWithStdinTTY(t *testing.T) {
 	testSetTTY(Fake(), "Stdin", t)
 }
 
+func TestWithSize(t *testing.T) {
+	f := Fake(WithSize(120, 40))
+	if width, height, err := f.Size(); err != nil {
+		t.Fatalf("Size() return error %v", err)
+	} else {
+		if width != 120 || height != 40 {
+			t.Fatalf("Size() = %d, %d, expected 120, 40", width, height)
+		}
+	}
+}
+
 func TestFakeConsole_Write(t *testing.T) {
 	f := Fake()
 	fmt.Fprintf(f, "test")
