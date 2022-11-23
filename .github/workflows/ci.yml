@@ -1,17 +1,27 @@
+# Copyright 2022 Heath Stewart.
+# Licensed under the MIT License. See LICENSE.txt in the project root for license information.
+
 name: ci
 
 on:
   pull_request:
   push:
     branches:
-      - main
+    - main
+  workflow_call:
+    inputs:
+      release:
+        description: Whether this is running as part of a release workflow.
+        required: false
+        type: boolean
+        default: false
 
 defaults:
   run:
     shell: bash
 
 env:
-  GOVERSION: 1.17
+  GOVERSION: "1.19"
 
 jobs:
   test:
@@ -29,20 +39,22 @@ jobs:
         - os: macos-latest
           goos: darwin
     steps:
-    - name: checkout
-      uses: actions/checkout@v2
-    - name: install go ${{ env.GOVERSION }}
-      uses: actions/setup-go@v2
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Set up Go ${{ env.GOVERSION }}
+      uses: actions/setup-go@v3
       with:
-        go-version: '^${{ env.GOVERSION }}'
-    - name: test
+        go-version: ${{ env.GOVERSION }}
+        cache: true
+    - name: Test
       run: GOOS=${{ matrix.goos }} go test ./... -cover -v
-    - name: lint
+    - name: Lint
       if: ${{ !cancelled() && matrix.lint }}
+      # cspell:ignore golangci
       uses: golangci/golangci-lint-action@v3
       with:
         only-new-issues: true
-        skip-cache: true
+        skip-pkg-cache: true
 
   check:
     runs-on: ubuntu-latest
